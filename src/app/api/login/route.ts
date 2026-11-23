@@ -4,7 +4,7 @@ import { signinSchema } from "@/schema/signinSchema";
 import bcrypt from 'bcryptjs'
 import { NextRequest, NextResponse } from "next/server";
 import jwt from 'jsonwebtoken'
-import { getClientIp, hitLoginRateLimit } from "@/lib/loginRateLimit";
+import { checkFailedLogins, clearFailedLogins, getClientIp, hitLoginRateLimit, recordFailedLogin } from "@/lib/loginRateLimit";
 
 export async function POST(request:NextRequest) {
     await dbConnection();
@@ -27,6 +27,14 @@ export async function POST(request:NextRequest) {
             }, { status: 429, headers: { 'Retry-After': String(retryAfter) } });
         }
 
+        const lockedFor = await checkFailedLogins(parsedResult.identifier);
+        if (lockedFor !== null) {
+            return NextResponse.json({
+                success: false,
+                message: "Too many failed login attempts. Please try again later."
+            }, { status: 429, headers: { 'Retry-After': String(lockedFor) } });
+        }
+
         const user = await userModel.findOne({
             $or:[
                 {email:parsedResult.identifier},
@@ -35,6 +43,7 @@ export async function POST(request:NextRequest) {
         })
 
         if (!user){
+            await recordFailedLogin(parsedResult.identifier);
             return NextResponse.json({
                 success:false,
                 message:"couldn't find  user"
@@ -44,10 +53,13 @@ export async function POST(request:NextRequest) {
         const isPasswordValid = await bcrypt.compare(String(parsedResult.password),String(user.password))
 
         if (!isPasswordValid) {
+            await recordFailedLogin(parsedResult.identifier);
             return NextResponse.json({
                 message:"Invalid password"
             },{status:401})
         }
+
+        await clearFailedLogins(parsedResult.identifier);
 
         const tokendata = {
             _id: user._id,
