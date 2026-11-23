@@ -1,6 +1,7 @@
 import { verifyToken } from "@/lib/authJWT";
 import { dbConnection } from "@/lib/dbconnect";
 import { LinkModel } from "@/models/link.model";
+import { encryptLink } from "@/lib/linkCrypto";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest) => {
@@ -18,9 +19,15 @@ export const POST = async (request: NextRequest) => {
         const { _id } = token.payload;
         const { link, title, tags } = reqBody;
 
+        if (typeof link !== "string" || !link) {
+            return NextResponse.json({
+                success:false,
+                message: "Link is required" }, { status: 400 });
+        }
+
         const newLink = new LinkModel({
             title: title ?? "No title has been given to this link",
-            link,
+            link: encryptLink(link),
             user:_id,
             tags
         })

@@ -1,6 +1,7 @@
 import { verifyToken } from "@/lib/authJWT";
 import { dbConnection } from "@/lib/dbconnect";
 import { LinkModel } from "@/models/link.model";
+import { decryptLink } from "@/lib/linkCrypto";
 import { userModel } from "@/models/user.model";
 import mongoose from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
@@ -56,7 +57,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json(
       {
         success: true,
-        data: links,
+        data: links.map((l) => ({ ...l, link: decryptLink(l.link) })),
         message: "Successfullt got the user links",
       },
       { status: 200 }
