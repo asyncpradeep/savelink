@@ -12,6 +12,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  // Signups disabled for now — remove this to re-enable the signup page.
+  if (pathname === "/signup") {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
   // If the user is authenticated and trying to access login or signup
 
   if (decodedToken && (pathname === "/login" || pathname === "/signup")) {

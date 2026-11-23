@@ -5,6 +5,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { signupValidation, UserInput } from "@/schema/signupSchema";
 
 export async function POST(request:NextRequest) {
+    // Signups disabled for now — remove this return to re-enable.
+    return NextResponse.json({
+        success:false,
+        message:"Signups are currently disabled"
+    },{status:403})
+
+    /* Original signup flow — uncomment (and remove the return above) to re-enable.
     await dbConnection();
 
     try {
@@ -60,4 +67,5 @@ export async function POST(request:NextRequest) {
             message:`Error while signing up , ${error}`
         },{status:400})
     }
+    */
 }
