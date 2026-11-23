@@ -4,6 +4,7 @@ import { signinSchema } from "@/schema/signinSchema";
 import bcrypt from 'bcryptjs'
 import { NextRequest, NextResponse } from "next/server";
 import jwt from 'jsonwebtoken'
+import { checkLoginRateLimit, clearFailedLogins, getClientIp, rateLimitKeys, recordFailedLogin } from "@/lib/loginRateLimit";
 
 export async function POST(request:NextRequest) {
     await dbConnection();
@@ -18,6 +19,15 @@ export async function POST(request:NextRequest) {
         
         const parsedResult = signinSchema.parse(body);
 
+        const keys = rateLimitKeys(getClientIp(request), parsedResult.identifier);
+        const retryAfter = await checkLoginRateLimit(keys);
+        if (retryAfter !== null) {
+            return NextResponse.json({
+                success: false,
+                message: "Too many failed login attempts. Please try again later."
+            }, { status: 429, headers: { 'Retry-After': String(retryAfter) } });
+        }
+
         const user = await userModel.findOne({
             $or:[
                 {email:parsedResult.identifier},
@@ -26,6 +36,7 @@ export async function POST(request:NextRequest) {
         })
 
         if (!user){
+            await recordFailedLogin(keys);
             return NextResponse.json({
                 success:false,
                 message:"couldn't find  user"
@@ -35,10 +46,15 @@ export async function POST(request:NextRequest) {
         const isPasswordValid = await bcrypt.compare(String(parsedResult.password),String(user.password))
 
         if (!isPasswordValid) {
+            await recordFailedLogin(keys);
             return NextResponse.json({
                 message:"Invalid password"
             },{status:401})
         }
+
+        // Only clear the identifier window; clearing the IP window would let an
+        // attacker reset it by logging into their own account.
+        await clearFailedLogins(keys.filter(k => k.startsWith('id:')));
 
         const tokendata = {
             _id: user._id,

@@ -109,6 +109,7 @@ function Signpage() {
             </form>
           </Form>
 
+          {/* Signups disabled for now
           <div className="mt-6 pt-5 border-t border-white/[0.05] text-center">
             <p className="text-slate-600 text-sm">
               No account?{' '}
@@ -117,6 +118,7 @@ function Signpage() {
               </Link>
             </p>
           </div>
+          */}
         </div>
       </div>
     </div>

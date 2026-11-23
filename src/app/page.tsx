@@ -171,11 +171,13 @@ export default function Home() {
               <LogIn className="w-4 h-4" />
               Sign In
             </Link>
+            {/* Signups disabled for now
             <div className="mt-4">
               <Link href="/signup" className="text-sm text-slate-600 hover:text-violet-400 transition-colors">
                 No account? Sign up free
               </Link>
             </div>
+            */}
           </div>
         )}
       </div>
