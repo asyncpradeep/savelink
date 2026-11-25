@@ -70,9 +70,17 @@ export async function POST(request:NextRequest) {
          const token = await jwt
          .sign(tokendata,process.env.JWT_TOKEN_SECRET??'',{expiresIn:"10d"})
 
+        // Never return the password hash (or other sensitive fields) to the client.
+        const safeUser = {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            admin: user.admin,
+        }
+
         const response = NextResponse.json({
             success: true ,
-            data: user,
+            data: safeUser,
             token:token,
             message:"logged in success",
         },{status:200})
