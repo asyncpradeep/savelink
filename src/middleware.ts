@@ -27,13 +27,17 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.next();
 
     // Clear the token cookie
+    // Must mirror the attributes used when the cookie was set in the login
+    // route (path '/', secure, sameSite 'none') so the browser clears it.
+    // No `domain` is set on login, so none is set here; an invalid domain
+    // (e.g. a full URL) makes the Set-Cookie attribute a no-op.
     response.cookies.set("token", "", {
       httpOnly:true,
       expires: new Date(0),
+      maxAge: 0,
       path: '/',
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      domain:'https://saveyourlinks.vercel.app/'
+      secure: true,
+      sameSite: 'none',
     });
 
     return response;
