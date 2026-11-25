@@ -4,10 +4,11 @@ import { verifyToken } from "./lib/authJWT";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const decodedToken = await verifyToken(request);
-  // Define routes that require authentication
-  const protectedRoutes = ["/links/save", "/links/delete-link"];
 
-  // If the user is not authenticated and trying to access a protected route
+  // Pages that require authentication. Unauthenticated users are sent to login
+  // instead of relying on a client-side redirect after the page has loaded.
+  const protectedRoutes = ["/links"];
+
   if (!decodedToken && protectedRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL("/login", request.url));
   }

@@ -96,10 +96,10 @@ export async function POST(request:NextRequest) {
         return response;
 
     } catch (error) {
-        console.log('error while signing',error);
+        console.error('error while signing',error);
         return NextResponse.json({
             success:false,
-            message:`Error while signing , ${error}`
-        },{status:400})
+            message:"Something went wrong while logging in. Please try again."
+        },{status:500})
     }
 }

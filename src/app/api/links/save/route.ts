@@ -43,6 +43,6 @@ export const POST = async (request: NextRequest) => {
         console.error("Error creating link:", error);
         return NextResponse.json({ 
             success:false,
-            message: "An error occurred while creating the link", error: error.message }, { status: 500 });
+            message: "An error occurred while creating the link" }, { status: 500 });
     }
 };

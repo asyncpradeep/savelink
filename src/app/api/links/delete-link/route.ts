@@ -58,7 +58,7 @@ export async function POST(request:NextRequest) {
         console.error("Error deleting link:", error);
         return NextResponse.json({ 
             success:false,
-            message: "An error occurred while deleting the link", error: error.message }, 
+            message: "An error occurred while deleting the link" }, 
             { status: 500 });
     }
 }
