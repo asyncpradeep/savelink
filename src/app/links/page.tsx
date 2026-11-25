@@ -130,7 +130,7 @@ const GetLinksPage = () => {
               <span className="text-sm text-slate-600 px-2 tabular-nums">Page {page}</span>
               <button
                 onClick={() => setPage((p) => p + 1)}
-                disabled={links.length === 0}
+                disabled={links.length < 10}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-slate-400 bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.08] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
                 Next
