@@ -1,4 +1,3 @@
-import { verifyToken } from "@/lib/authJWT";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request:NextRequest){
@@ -11,20 +10,24 @@ export async function GET(request:NextRequest){
             }
         )
 
+        // Must mirror the attributes login uses to set the cookie (path '/',
+        // secure, sameSite 'none', no domain) so the browser actually clears
+        // it. An invalid domain (a full URL) makes the attribute a no-op.
         response.cookies.set('token','',{
             httpOnly:true,
             expires:new Date(0),
+            maxAge:0,
             path:'/',
-            secure:process.env.NODE_ENV === 'production',
-            sameSite:'lax',
-            domain:'https://saveyourlinks.vercel.app/'
+            secure:true,
+            sameSite:'none',
         })
 
         return response;
 
     } catch (error:any) {
 
-        return NextResponse.json({error: error.message}, {status:500})
+        console.error('Error during logout', error);
+        return NextResponse.json({ success:false, message:"Failed to log out" }, {status:500})
 
     }
 }
