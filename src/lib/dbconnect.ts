@@ -16,6 +16,9 @@ export async function dbConnection() {
         connection.isConnected = db.connections[0].readyState;
         console.log("Connected to the database");
     } catch (error) {
-        console.log("Error connecting to the database", error);
+        console.error("Error connecting to the database", error);
+        // Rethrow so the calling route fails fast with a clean 500 instead of
+        // proceeding and throwing a confusing error on the first query.
+        throw error;
     }
 }

@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: `Error while getting links , ${error}`,
+        message: "An error occurred while getting links",
       },
       { status: 500 }
     );
